@@ -61,3 +61,9 @@ The plugin to play deck.gl with maptalks.js
         }
 ```
 
+## gallery
+
+![](gallery/2018-10-26_172936.png)
+![](gallery/2018-10-26_173014.png)
+![](gallery/2018-10-26_173031.png)
+

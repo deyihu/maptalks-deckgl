@@ -79,9 +79,9 @@
             };
             fetch('./data-1524055280228-SkugT242f.json').then(res => { return res.json() }).then(result => {
                 console.log(result);
-                let dd=result.features;
+                let dd = result.features;
                 dd.forEach(element => {
-                     element.vendor=Math.random();
+                    element.vendor = Math.random();
                 });
                 let lineLayer = {
                     layerType: 'PathLayer',
@@ -94,10 +94,37 @@
                     getWidth: d => 3,
                     opacity: 0.3,
                     lightSettings: LIGHT_SETTINGS,
-                    getColor: d => (d.vendor >0.5 ? [253, 128, 93] : [23, 184, 190])
+                    getColor: d => [Math.round(Math.random() * 255),Math.round(Math.random() * 255),Math.round(Math.random() * 255)]
                 }
-                deckglLayer.setProps({
-                    layers: [lineLayer]
+                // deckglLayer.setProps({
+                //     layers: [lineLayer]
+                // });
+
+                fetch('https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/trips/buildings.json').then(res => { return res.json() }).then(data => {
+                    // const LIGHT_SETTINGS = {
+                    //     lightsPosition: [-74.05, 40.7, 8000, -73.5, 41, 5000],
+                    //     ambientRatio: 0.05,
+                    //     diffuseRatio: 0.6,
+                    //     specularRatio: 0.8,
+                    //     lightsStrength: [2.0, 0.0, 0.0, 0.0],
+                    //     numberOfLights: 2
+                    // };
+                    let polygonLayer = {
+                        layerType: 'PolygonLayer',
+                        id: 'line-layer',
+                        data: data,
+                        pickable: true,
+                        extruded: true,
+                        getPolygon: d => d.polygon,
+                        getElevation: d => d.height,
+                        getFillColor: d => [74, 80, 87],
+                        lightSettings: LIGHT_SETTINGS,
+                        opacity:0.5
+                        // getColor: d => [74, 80, 87],
+                    };
+                    deckglLayer.setProps({
+                        layers: [lineLayer,polygonLayer]
+                    });
                 });
             });
 
