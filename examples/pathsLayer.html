@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>maptalks-deckgl test</title>
+<style type="text/css">
+    html,
+    body {
+        margin: 0px;
+        height: 100%;
+        width: 100%
+    }
+
+    .container {
+        width: 100%;
+        height: 100%
+    }
+
+    #tooltip:empty {
+        display: none;
+    }
+
+    #tooltip {
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 11px;
+        position: absolute;
+        padding: 4px;
+        margin: 8px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        max-width: 300px;
+        font-size: 10px;
+        z-index: 9;
+        pointer-events: none;
+    }
+</style>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maptalks@0.41.1/dist/maptalks.css">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/maptalks@0.41.1/dist/maptalks.min.js"></script>
+<script src="https://unpkg.com/deck.gl@latest/deckgl.min.js"></script>
+<script type="text/javascript" src="../dist/maptalks.deckgl.js"></script>
+
+
+
+<body>
+
+    <div id="map" class="container"></div>
+    <div id="tooltip"></div>
+    <script>
+        var map = new maptalks.Map('map', {
+            center: [-1.0761489169943843, 52.141304256882876],
+            zoom: 6,
+            baseLayer: new maptalks.TileLayer('base', {
+                urlTemplate: '//a.tiles.mapbox.com/v4/mapbox.dark/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejh2N21nMzAxMmQzMnA5emRyN2lucW0ifQ.jSE-g2vsn48Ry928pqylcg',
+                subdomains: ['a', 'b', 'c', 'd'],
+                attribution: '&copy; <a href="http://osm.org">OpenStreetMap</a> contributors, &copy; <a href="https://mapbox.com/">mapbox</a>'
+            }),
+            maxZoom: 18,
+            // maxPitch: 60,
+            pitch: 50
+        });
+
+        let deckglLayer = new maptalks.DeckGLLayer('kkkk', {});
+        map.addLayer(deckglLayer);
+        
+
+
+        map.setCenter([121.47823700354706, 31.201994]);
+        map.setZoom(13);
+        addPathLayer();
+        function addPathLayer() {
+            fetch('./SubWay.geojson').then(res => { return res.json() }).then(result => {
+                result = result.features;
+                let data = [];
+                result.forEach(element => {
+                    if (element.geometry.type === 'MultiLineString') {
+                        element.geometry.type = 'LineString';
+                        element.geometry.coordinates = element.geometry.coordinates.slice(0, 1)[0];
+                        data.push({ path: element.geometry.coordinates, name: element.properties.ID });
+                    } else {
+                    }
+                });
+                let lineLayer = {
+                    layerType: 'PathLayer',
+                    id: 'line-layer',
+                    data,
+                    pickable: true,
+                    widthScale: 5,
+                    widthMinPixels: 2,
+                    getPath: d => d.path,
+                    getWidth: d => 5,
+                    getColor: d => [252,232,22],
+                }
+                deckglLayer.setProps({
+                    layers: [lineLayer]
+                });
+            });
+
+        }
+
+
+
+    </script>
+</body>
+
+</html>

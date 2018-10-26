@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>maptalks-deckgl test</title>
+<style type="text/css">
+  html,
+  body {
+    margin: 0px;
+    height: 100%;
+    width: 100%
+  }
+
+  .container {
+    width: 100%;
+    height: 100%
+  }
+
+  #tooltip:empty {
+    display: none;
+  }
+
+  #tooltip {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    position: absolute;
+    padding: 4px;
+    margin: 8px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    max-width: 300px;
+    font-size: 10px;
+    z-index: 9;
+    pointer-events: none;
+  }
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maptalks@0.41.1/dist/maptalks.css">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/maptalks@0.41.1/dist/maptalks.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.min.js"></script>
+<!-- <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.js'></script>
+<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.css' rel='stylesheet' /> -->
+<!-- <script src="https://unpkg.com/deck.gl@5.2.5/deckgl.min.js"></script> -->
+<script src="https://unpkg.com/deck.gl@latest/deckgl.min.js"></script>
+<!-- <script src="https://unpkg.com/deck.gl@5.3.4/deckgl.min.js"></script> -->
+<!-- <script src="../node_modules/@deck.gl/experimental-layers/dist/trips-layer/index.js"></script> -->
+<script type="text/javascript" src="../dist/maptalks.deckgl.js"></script>
+<script type="text/javascript" src="http://10.0.0.27/YYMap-examples/dist/assets/data/gsAreaPoi.js"></script>
+<script src="https://cdn.bootcss.com/lz-string/1.4.4/lz-string.min.js"></script>
+
+<body>
+
+  <div id="map" class="container"></div>
+  <div id="tooltip"></div>
+  <script>
+    var map = new maptalks.Map('map', {
+      center: [-1.0761489169943843, 52.141304256882876],
+      zoom: 6,
+      baseLayer: new maptalks.TileLayer('base', {
+        urlTemplate: '//a.tiles.mapbox.com/v4/mapbox.dark/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejh2N21nMzAxMmQzMnA5emRyN2lucW0ifQ.jSE-g2vsn48Ry928pqylcg',
+        subdomains: ['a', 'b', 'c', 'd'],
+        attribution: '&copy; <a href="http://osm.org">OpenStreetMap</a> contributors, &copy; <a href="https://mapbox.com/">mapbox</a>'
+      }),
+      maxZoom: 18,
+      // maxPitch: 60,
+      pitch: 50
+    });
+
+    let deckglLayer = new maptalks.DeckGLLayer('kkkk', {});
+    map.addLayer(deckglLayer);
+    
+    console.log(deckgl);
+
+    // map.setCenter([-122.430844, 37.772276]);
+    // test();
+    function test() {
+      fetch('./sf-bike-parking.json').then(res => { return res.json() }).then(data => {
+        data.forEach(element => {
+          element.position = element.COORDINATES;
+        });
+        deckglLayer.setProps({
+          layers: [{
+            layerType: 'HexagonLayer',
+            data: data,
+            opacity: 1,
+            extruded: true,
+            elevationScale: 4,
+            radius: 100,
+            pickable: true,
+            onHover: function (e) {
+              console.log(e);
+            }
+          }
+          ],
+          onViewStateChange: function (e) {
+            // console.log(e)
+          },
+          onLayerClick: function (e) {
+            // console.log(e);
+          }
+        });
+      });
+    }
+
+
+    // map.setCenter([-1.0761489169943843, 52.141304256882876]);
+    // addHexagonLayer();
+    function addHexagonLayer() {
+      d3.csv('https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/3d-heatmap/heatmap-data.csv',
+        (error, response) => {
+          let data = response.map(d => [Number(d.lng), Number(d.lat)]);
+          const COLOR_RANGE = [
+            [1, 152, 189],
+            [73, 227, 206],
+            [216, 254, 181],
+            [254, 237, 177],
+            [254, 173, 84],
+            [209, 55, 78]
+          ];
+
+          const LIGHT_SETTINGS = {
+            lightsPosition: [-0.144528, 49.739968, 8000, -3.807751, 54.104682, 8000],
+            ambientRatio: 0.4,
+            diffuseRatio: 0.6,
+            specularRatio: 0.2,
+            lightsStrength: [0.8, 0.0, 0.8, 0.0],
+            numberOfLights: 2
+          };
+          const options = {
+            radius: 1000,
+            coverage: 1,
+            upperPercentile: 100
+          }
+
+          const hexagonLayer = {
+            layerType: "HexagonLayer",
+            id: 'heatmap',
+            colorRange: COLOR_RANGE,
+            data,
+            elevationRange: [0, 1000],
+            elevationScale: 250,
+            extruded: true,
+            pickable: true,
+            getPosition: d => d,
+            onHover: info => { console.log(info) },
+            lightSettings: LIGHT_SETTINGS,
+            opacity: 1,
+            ...options
+          };
+          deckglLayer.setProps({
+            layers: [hexagonLayer]
+          });
+        });
+    }
+
+    // map.setCenter([-116.71849765758043, 32.911171005023874]);
+    // addArc();
+    function addArc() {
+      fetch('https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/arc/counties.json')
+        .then(res => res.json())
+        .then(data => {
+          const inFlowColors = [
+            [255, 255, 204],
+            [199, 233, 180],
+            [127, 205, 187],
+            [65, 182, 196],
+            [29, 145, 192],
+            [34, 94, 168],
+            [12, 44, 132]
+          ];
+
+          const outFlowColors = [
+            [255, 255, 178],
+            [254, 217, 118],
+            [254, 178, 76],
+            [253, 141, 60],
+            [252, 78, 42],
+            [227, 26, 28],
+            [177, 0, 38]
+          ];
+
+          const countyLayer = {
+            layerType: 'GeoJsonLayer',
+            id: 'geojson',
+            data,
+            stroked: true,
+            filled: true,
+            autoHighlight: true,
+            getFillColor: () => [255, 0, 0],
+            onClick: info => updateLayers(info.object),
+            opacity: 0.8,
+            pickable: true
+          };
+
+
+          updateLayers(data.features.find(f => f.properties.name === 'Los Angeles, CA'));
+
+          function updateLayers(selectedFeature) {
+            const { flows, centroid } = selectedFeature.properties;
+            const arcs = Object.keys(flows).map(toId => {
+              const f = data.features[toId];
+              return {
+                source: centroid,
+                target: f.properties.centroid,
+                value: flows[toId]
+              };
+            });
+
+            const scale = d3.scaleQuantile()
+              .domain(arcs.map(a => Math.abs(a.value)))
+              .range(inFlowColors.map((c, i) => i));
+
+            arcs.forEach(a => {
+              a.gain = Math.sign(a.value);
+              a.quantile = scale(Math.abs(a.value));
+            });
+
+            const arcLayer = {
+              layerType: 'ArcLayer',
+              id: 'arc',
+              data: arcs,
+              getSourcePosition: d => d.source,
+              getTargetPosition: d => d.target,
+              getSourceColor: d => (d.gain > 0 ? inFlowColors : outFlowColors)[d.quantile],
+              getTargetColor: d => (d.gain > 0 ? outFlowColors : inFlowColors)[d.quantile],
+              strokeWidth: 4
+            };
+
+            deckglLayer.setProps({
+              layers: [countyLayer, arcLayer]
+            });
+          }
+        });
+
+    }
+
+    // map.setCenter([117.48636586714201, 26.89423260633569]);
+    // addGeoJson();
+    function addGeoJson() {
+      const LIGHT_SETTINGS = {
+        lightsPosition: [-125, 50.5, 5000, -122.8, 48.5, 8000],
+        ambientRatio: 0.2,
+        diffuseRatio: 0.5,
+        specularRatio: 0.3,
+        lightsStrength: [1.0, 0.0, 2.0, 0.0],
+        numberOfLights: 2
+      };
+
+      const COLOR_SCALE = [
+        // negative
+        [65, 182, 196],
+        [127, 205, 187],
+        [199, 233, 180],
+        [237, 248, 177],
+
+        // positive
+        [255, 255, 204],
+        [255, 237, 160],
+        [254, 217, 118],
+        [254, 178, 76],
+        [253, 141, 60],
+        [252, 78, 42],
+        [227, 26, 28],
+        [189, 0, 38],
+        [128, 0, 38]
+      ];
+
+      const geojsonLayer = {
+        layerType: 'GeoJsonLayer',
+        data: 'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/geojson/vancouver-blocks.json',
+        opacity: 0.8,
+        stroked: false,
+        filled: true,
+        extruded: true,
+        wireframe: true,
+        fp64: true,
+        lightSettings: LIGHT_SETTINGS,
+
+        getElevation: f => Math.random() * 100000,
+        getFillColor: f => colorScale(f.properties.growth),
+        getLineColor: f => [255, 255, 255],
+
+        pickable: true,
+        onHover: updateTooltip
+      };
+      deckglLayer.setProps({
+        layers: [geojsonLayer]
+      });
+
+
+      function colorScale(x = Math.random() * 3) {
+        const LEN = COLOR_SCALE.length;
+        const index = Math.min(Math.ceil(Math.random() * LEN), LEN - 1);
+        return COLOR_SCALE[index];
+
+      }
+
+      function updateTooltip({ x, y, object }) {
+
+        let tooltip = document.getElementById('tooltip');
+
+        if (object) {
+          console.log(object);
+          tooltip.style.top = `${y}px`;
+          tooltip.style.left = `${x}px`;
+          tooltip.innerHTML = `
+            <div><b>NAME</b></div>
+            <div><div>${object.properties.NAME}</sup></div></div>
+            <div><b>PROVINCENA</b></div>
+            <div>${object.properties.PROVINCENA}</div>
+            `;
+        } else {
+          tooltip.innerHTML = '';
+        }
+      }
+    }
+
+    // addGridLayer();
+    function addGridLayer() {
+      d3.csv('https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/3d-heatmap/heatmap-data.csv',
+        (error, response) => {
+          let data = response.map(d => [Number(d.lng), Number(d.lat)]);
+
+          const COLOR_RANGE = [
+            [1, 152, 189],
+            [73, 227, 206],
+            [216, 254, 181],
+            [254, 237, 177],
+            [254, 173, 84],
+            [209, 55, 78]
+          ];
+
+          const LIGHT_SETTINGS = {
+            lightsPosition: [-0.144528, 49.739968, 8000, -3.807751, 54.104682, 8000],
+            ambientRatio: 0.4,
+            diffuseRatio: 0.6,
+            specularRatio: 0.2,
+            lightsStrength: [0.8, 0.0, 0.8, 0.0],
+            numberOfLights: 2
+          };
+          const options = {
+            radius: 1000,
+            coverage: 1,
+            upperPercentile: 100
+          }
+
+          const gridLayer = {
+            layerType: 'GridLayer',
+            id: 'heatmap',
+            colorRange: COLOR_RANGE,
+            data,
+            elevationRange: [0, 1000],
+            elevationScale: 250,
+            extruded: true,
+            pickable: true,
+            getPosition: d => d,
+            onClick: info => { console.log(info) },
+            lightSettings: LIGHT_SETTINGS,
+            opacity: 1,
+            ...options
+          };
+
+          deckglLayer.setProps({
+            layers: [gridLayer]
+          });
+        });
+    }
+
+    // addIconLayer();
+    function addIconLayer() {
+      d3.csv('https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/3d-heatmap/heatmap-data.csv',
+        (error, response) => {
+          let data = response.map(d => [Number(d.lng), Number(d.lat)]);
+
+          const COLOR_RANGE = [
+            [1, 152, 189],
+            [73, 227, 206],
+            [216, 254, 181],
+            [254, 237, 177],
+            [254, 173, 84],
+            [209, 55, 78]
+          ];
+
+          const LIGHT_SETTINGS = {
+            lightsPosition: [-0.144528, 49.739968, 8000, -3.807751, 54.104682, 8000],
+            ambientRatio: 0.4,
+            diffuseRatio: 0.6,
+            specularRatio: 0.2,
+            lightsStrength: [0.8, 0.0, 0.8, 0.0],
+            numberOfLights: 2
+          };
+          const options = {
+            radius: 1000,
+            coverage: 1,
+            upperPercentile: 100
+          }
+
+          const iconLayer = {
+            layerType: 'IconLayer',
+            id: 'heatmap',
+            colorRange: COLOR_RANGE,
+            data,
+            // elevationRange: [0, 1000],
+            // elevationScale: 250,
+            // extruded: true,
+            pickable: true,
+            getPosition: d => d,
+            onClick: info => { console.log(info) },
+            lightSettings: LIGHT_SETTINGS,
+            opacity: 1,
+            iconAtlas: './icon-atlas.png',
+            iconMapping: {
+              marker: {
+                x: 0,
+                y: 0,
+                width: 128,
+                height: 128,
+                anchorY: 128,
+                mask: true
+              }
+            },
+            sizeScale: 5,
+            getIcon: d => 'marker',
+            getSize: d => 5,
+            getColor: d => [Math.round(Math.random() * 255), 140, 0],
+          };
+          deckglLayer.setProps({
+            layers: [iconLayer]
+          });
+        });
+    }
+
+    // map.setCenter([116.11793200000012, 39.721994]);
+    // map.setZoom(13);
+    // addPathLayer();
+    function addPathLayer() {
+      fetch('./SubWay.geojson').then(res => { return res.json() }).then(result => {
+        result = result.features;
+        let data = [];
+        result.forEach(element => {
+          if (element.geometry.type === 'MultiLineString') {
+            element.geometry.type = 'LineString';
+            element.geometry.coordinates = element.geometry.coordinates.slice(0, 1)[0];
+            data.push({ path: element.geometry.coordinates, name: element.properties.ID });
+          } else {
+          }
+        });
+        let lineLayer = {
+          layerType: 'PathLayer',
+          id: 'line-layer',
+          data,
+          pickable: true,
+          widthScale: 5,
+          widthMinPixels: 2,
+          getPath: d => d.path,
+          getWidth: d => 5,
+          getColor: d => [Math.round(Math.random() * 255), Math.round(Math.random() * 255), Math.round(Math.random() * 255)],
+        }
+        deckglLayer.setProps({
+          layers: [lineLayer]
+        });
+      });
+
+    }
+
+
+    // map.setCenter([120.60552882619845, 31.294161536006385]);
+    // map.setZoom(13);
+    // addTextLayer();
+    function addTextLayer() {
+      fetch('https://rivulet-zhang.github.io/dataRepo/text-layer/hashtagsOneDayWithTime.json').then(res => { return res.json() }).then(data => {
+        let textLayer = {
+          layerType: 'TextLayer',
+          id: 'textLayer',
+          data: data.slice(0, 1000),
+          getPosition: d => d.coordinates,
+          pickable: true,
+          getColor: d => [Math.round(Math.random() * 255), Math.round(Math.random() * 255), Math.round(Math.random() * 255)],
+        };
+        deckglLayer.setProps({
+          layers: [textLayer]
+        });
+      })
+    }
+
+
+    // map.setCenter([-74.00383231947114, 40.71149899131777]).setZoom(15);
+    // addPolygonLayer();
+    function addPolygonLayer() {
+      fetch('https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/trips/buildings.json').then(res => { return res.json() }).then(data => {
+        const LIGHT_SETTINGS = {
+          lightsPosition: [-74.05, 40.7, 8000, -73.5, 41, 5000],
+          ambientRatio: 0.05,
+          diffuseRatio: 0.6,
+          specularRatio: 0.8,
+          lightsStrength: [2.0, 0.0, 0.0, 0.0],
+          numberOfLights: 2
+        };
+        let polygonLayer = {
+          layerType: 'PolygonLayer',
+          id: 'line-layer',
+          data: data,
+          pickable: true,
+          extruded: true,
+          getPolygon: d => d.polygon,
+          getElevation: d => d.height,
+          getFillColor: d => [74, 80, 87],
+          lightSettings: LIGHT_SETTINGS
+          // getColor: d => [74, 80, 87],
+        };
+        deckglLayer.setProps({
+          layers: [polygonLayer]
+        });
+      });
+    }
+
+
+    // addScatterplotLayer();
+    function addScatterplotLayer() {
+      d3.csv('https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/3d-heatmap/heatmap-data.csv',
+        (error, response) => {
+          let data = response.map(d => [Number(d.lng), Number(d.lat)]);
+
+          const COLOR_RANGE = [
+            [1, 152, 189],
+            [73, 227, 206],
+            [216, 254, 181],
+            [254, 237, 177],
+            [254, 173, 84],
+            [209, 55, 78]
+          ];
+
+          const LIGHT_SETTINGS = {
+            lightsPosition: [-0.144528, 49.739968, 8000, -3.807751, 54.104682, 8000],
+            ambientRatio: 0.4,
+            diffuseRatio: 0.6,
+            specularRatio: 0.2,
+            lightsStrength: [0.8, 0.0, 0.8, 0.0],
+            numberOfLights: 2
+          };
+          const scatterplotLayer = {
+            layerType: 'ScatterplotLayer',
+            id: 'heatmap',
+            colorRange: COLOR_RANGE,
+            data: data,
+            // elevationRange: [0, 1000],
+            // elevationScale: 250,
+            // extruded: true,
+            pickable: true,
+            getPosition: d => d,
+            // onClick: info => { console.log(info) },
+            lightSettings: LIGHT_SETTINGS,
+            opacity: 1,
+            radiusScale: 10,
+            radiusMinPixels: 2,
+            radiusMaxPixels: 100,
+            getColor: d => [Math.round(Math.random() * 255), 140, 0],
+          };
+
+          deckglLayer.setProps({
+            layers: [scatterplotLayer]
+          });
+        });
+    }
+
+    // map.setCenter([-119.3, 35.6]).setZoom(6);
+    // addScreenGridLayer();
+    function addScreenGridLayer() {
+      let screenGridLayer = {
+        layerType: 'ScreenGridLayer',
+        id: 'grid',
+        data: 'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/screen-grid/ca-transit-stops.json',
+        // minColor: [0, 0, 0, 0],
+        getPosition: d => d,
+        cellSizePixels: 40
+      };
+      deckglLayer.setProps({ layers: [screenGridLayer] });
+    }
+
+    addLineLayer();
+    function addLineLayer() {
+
+      function getColor(d) {
+        const z = d.start[2];
+        const r = z / 10000;
+
+        return [255 * (1 - r * 2), 128 * r, 255 * r, 255 * (1 - r)];
+      }
+
+      function getSize(type) {
+        if (type.search('major') >= 0) {
+          return 100;
+        }
+        if (type.search('small') >= 0) {
+          return 30;
+        }
+        return 60;
+      }
+      fetch('https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/line/heathrow-flights.json').then(res => { return res.json() }).then(data => {
+        console.log(data.length);
+        let layer = {
+          layerType: 'LineLayer',
+          id: 'flight-paths',
+          data:data,
+          fp64: false,
+          getSourcePosition: d => d.start,
+          getTargetPosition: d => d.end,
+          getColor,
+          getStrokeWidth: 6,
+          pickable: true,
+        }
+        deckglLayer.setProps({ layers: [layer] });
+      })
+
+    }
+
+
+
+
+    map.on('click', e => {
+      console.log(e.coordinate.toArray());
+    })
+
+    map.on('mousemove', e => {
+      // const xy=e.containerPoint;
+      //   const objects= deckgl.pickObject({x:xy.x,y:xy.y,radius:200,layerIds :['1111']})
+      //   console.log(objects);
+    })
+
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>maptalks-deckgl test</title>
+<style type="text/css">
+  html,
+  body {
+    margin: 0px;
+    height: 100%;
+    width: 100%
+  }
+
+  .container {
+    width: 100%;
+    height: 100%
+  }
+
+  #tooltip:empty {
+    display: none;
+  }
+
+  #tooltip {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    position: absolute;
+    padding: 4px;
+    margin: 8px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    max-width: 300px;
+    font-size: 10px;
+    z-index: 9;
+    pointer-events: none;
+  }
+</style>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maptalks@0.41.1/dist/maptalks.css">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/maptalks@0.41.1/dist/maptalks.min.js"></script>
+<script src="https://unpkg.com/deck.gl@latest/deckgl.min.js"></script>
+<script type="text/javascript" src="../dist/maptalks.deckgl.js"></script>
+
+
+
+<body>
+
+  <div id="map" class="container"></div>
+  <div id="tooltip"></div>
+  <script>
+    var map = new maptalks.Map('map', {
+      center: [-1.0761489169943843, 52.141304256882876],
+      zoom: 6,
+      baseLayer: new maptalks.TileLayer('base', {
+        urlTemplate: '//a.tiles.mapbox.com/v4/mapbox.dark/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejh2N21nMzAxMmQzMnA5emRyN2lucW0ifQ.jSE-g2vsn48Ry928pqylcg',
+        subdomains: ['a', 'b', 'c', 'd'],
+        attribution: '&copy; <a href="http://osm.org">OpenStreetMap</a> contributors, &copy; <a href="https://mapbox.com/">mapbox</a>'
+      }),
+      maxZoom: 18,
+      // maxPitch: 60,
+      pitch: 50
+    });
+
+    let deckglLayer = new maptalks.DeckGLLayer('kkkk', {});
+    map.addLayer(deckglLayer);
+    
+
+
+
+    map.setCenter([-116.71849765758043, 32.911171005023874]);
+    addArc();
+    function addArc() {
+      fetch('https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/arc/counties.json')
+        .then(res => res.json())
+        .then(data => {
+          const inFlowColors = [
+            [255, 255, 204],
+            [199, 233, 180],
+            [127, 205, 187],
+            [65, 182, 196],
+            [29, 145, 192],
+            [34, 94, 168],
+            [12, 44, 132]
+          ];
+
+          const outFlowColors = [
+            [255, 255, 178],
+            [254, 217, 118],
+            [254, 178, 76],
+            [253, 141, 60],
+            [252, 78, 42],
+            [227, 26, 28],
+            [177, 0, 38]
+          ];
+
+          const countyLayer = {
+            layerType: 'GeoJsonLayer',
+            id: 'geojson',
+            data,
+            stroked: true,
+            filled: true,
+            autoHighlight: true,
+            getFillColor: () => [232,232,1],
+            onClick: info => updateLayers(info.object),
+            opacity: 0.3,
+            pickable: true
+          };
+
+
+          updateLayers(data.features.find(f => f.properties.name === 'Los Angeles, CA'));
+
+          function updateLayers(selectedFeature) {
+            const { flows, centroid } = selectedFeature.properties;
+            const arcs = Object.keys(flows).map(toId => {
+              const f = data.features[toId];
+              return {
+                source: centroid,
+                target: f.properties.centroid,
+                value: flows[toId]
+              };
+            });
+
+            const scale = d3.scaleQuantile()
+              .domain(arcs.map(a => Math.abs(a.value)))
+              .range(inFlowColors.map((c, i) => i));
+
+            arcs.forEach(a => {
+              a.gain = Math.sign(a.value);
+              a.quantile = scale(Math.abs(a.value));
+            });
+
+            const arcLayer = {
+              layerType: 'ArcLayer',
+              id: 'arc',
+              data: arcs,
+              getSourcePosition: d => d.source,
+              getTargetPosition: d => d.target,
+              getSourceColor: d => (d.gain > 0 ? inFlowColors : outFlowColors)[d.quantile],
+              getTargetColor: d => (d.gain > 0 ? outFlowColors : inFlowColors)[d.quantile],
+              strokeWidth: 4
+            };
+
+            deckglLayer.setProps({
+              layers: [countyLayer, arcLayer]
+            });
+          }
+        });
+
+    }
+
+
+  </script>
+</body>
+
+</html>
