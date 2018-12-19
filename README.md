@@ -5,12 +5,9 @@ The plugin to play deck.gl with maptalks.js
 
 ```js
 
-   let deckglLayer = new maptalks.DeckGLLayer('kkkk', {});
+        let deckglLayer = new maptalks.DeckGLLayer('kkkk', {});
         map.addLayer(deckglLayer);
         
-
-
-
         addHexagonLayer();
         function addHexagonLayer() {
             d3.csv('https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/3d-heatmap/heatmap-data.csv',
@@ -40,7 +37,7 @@ The plugin to play deck.gl with maptalks.js
                     }
 
                     const hexagonLayer = {
-                        layerType: "HexagonLayer",//is import ,is deck.gl Layer Type
+                        layerType: "HexagonLayer",//is important ,is deck.gl Layer Type
                         id: 'heatmap',
                         colorRange: COLOR_RANGE,
                         data,
