@@ -18,11 +18,10 @@ export class DeckGLLayer extends maptalks.Layer {
 
     setProps(props) {
         const render = this._getRenderer();
+        this.props = maptalks.Util.extend({}, props);
+        let options = this._initDeckOption(props);
         if (render) {
-            this.props = maptalks.Util.extend({}, props);
-            let options = this._initDeckOption(props);
             render.deckgl.setProps(options);
-
         }
         return this;
     }
@@ -266,5 +265,4 @@ export class DeckGLRenderer {
 
     }
 }
-
 DeckGLLayer.registerRenderer('dom', DeckGLRenderer);
