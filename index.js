@@ -118,6 +118,7 @@ export class DeckGLLayer extends maptalks.Layer {
 }
 
 DeckGLLayer.mergeOptions(options);
+
 export class DeckGLRenderer {
 
     constructor(layer) {
@@ -128,22 +129,22 @@ export class DeckGLRenderer {
         if (!this._container) {
             this._createLayerContainer();
         }
+        this.sync();
         this.layer.fire('layerload');
 
     }
 
     drawOnInteracting() {
-        // if (this._isVisible()) {
-
-        // }
         this.sync();
     }
 
     sync() {
         const props = this.getView();
-        if (this.deckgl)
-            this.deckgl.setProps({ viewState: maptalks.Util.extend({}, props) });
-
+        if (this.deckgl) {
+            if (this.deckgl.setProps) {
+                this.deckgl.setProps({ viewState: maptalks.Util.extend({}, props) });
+            }
+        }
     }
 
     needToRedraw() {
@@ -193,12 +194,10 @@ export class DeckGLRenderer {
 
     initDeckGL() {
         const deckOption = {
-            container: this._container
-            // onViewStateChange:this.syncMap.bind(this)
-            // mapboxApiAccessToken: 'pk.eyJ1IjoiemhlbmZ1IiwiYSI6ImNpb284bzNoYzAwM3h1Ym02aHlrand6OTAifQ.sKX-XKJMmgtk_oI5oIUV_g',
-            // mapStyle: 'mapbox://styles/mapbox/dark-v9',
+            canvas: this._container.firstChild
         };
-        this.deckgl = new deck.DeckGL(maptalks.Util.extend({}, deckOption, this.getView()));
+        const options = maptalks.Util.extend({}, deckOption, { viewState: this.getView() });
+        this.deckgl = new deck.Deck(options);
         const layer = this.layer;
         if (layer && layer.props) {
             layer.setProps(layer.props);
@@ -209,6 +208,9 @@ export class DeckGLRenderer {
 
     _createLayerContainer() {
         const container = this._container = maptalks.DomUtil.createEl('div');
+        const canvas = document.createElement('canvas');
+        container.appendChild(canvas);
+
         container.style.cssText = 'position:absolute;left:0px;top:0px;opacity:1;';
         if (this._zIndex) {
             container.style.zIndex = this._zIndex;
@@ -230,6 +232,9 @@ export class DeckGLRenderer {
         const size = this.getMap().getSize();
         this._container.style.width = size.width + 'px';
         this._container.style.height = size.height + 'px';
+        const canvas = this._container.firstChild;
+        canvas.width = '100%';
+        canvas.height = '100%'
         this.sync();
     }
 
@@ -250,8 +255,9 @@ export class DeckGLRenderer {
 
     getView() {
         const map = this.getMap();
+        // const res = map.getResolution();
         const center = map.getCenter(), zoom = map.getZoom(), bearing = map.getBearing(), pitch = map.getPitch(), maxZoom = map.getMaxZoom();
-        const size = map.getSize();
+        // const size = map.getSize();
         return {
             longitude: center.x,
             latitude: center.y,
@@ -259,10 +265,9 @@ export class DeckGLRenderer {
             maxZoom: maxZoom - 1,
             pitch: pitch,
             bearing: bearing,
-            width: size.width,
-            height: size.height
+            width: '100%',
+            height: '100%'
         };
-
     }
 }
 DeckGLLayer.registerRenderer('dom', DeckGLRenderer);

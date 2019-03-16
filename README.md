@@ -1,14 +1,21 @@
 # maptalks-deckgl
 The plugin to play deck.gl with maptalks.js
 
+about deck.gl
+
+- DeckGL for react or cdn script.
+
+- Deck for cdn script or module build
+
 ## use?
 
 ```js
 
-        let deckglLayer = new maptalks.DeckGLLayer('kkkk', {});
+        const deckglLayer = new maptalks.DeckGLLayer('kkkk', {});
         map.addLayer(deckglLayer);
         
         addHexagonLayer();
+
         function addHexagonLayer() {
             d3.csv('https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/3d-heatmap/heatmap-data.csv',
                 (error, response) => {
