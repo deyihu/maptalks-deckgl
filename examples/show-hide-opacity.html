@@ -37,7 +37,7 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maptalks@0.41.1/dist/maptalks.css">
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/maptalks@0.41.1/dist/maptalks.min.js"></script>
-<script src="https://unpkg.com/deck.gl@latest/deckgl.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/deck.gl@7.1.11/dist.min.js"></script>
 <script src="https://cdn.bootcss.com/dat-gui/0.7.3/dat.gui.min.js"></script>
 <script type="text/javascript" src="../dist/maptalks.deckgl.js"></script>
 
@@ -61,9 +61,9 @@
             pitch: 50
         });
 
-        let deckglLayer = new maptalks.DeckGLLayer('kkkk', {});
+        const deckglLayer = new maptalks.DeckGLLayer('kkkk', {});
         map.addLayer(deckglLayer);
-        
+
 
 
 
@@ -120,7 +120,7 @@
         function inistGui() {
             var Options = function () {
                 this.show = true;
-                this.opacity=1;
+                this.opacity = 1;
             };
 
             var options = new Options();
@@ -128,13 +128,13 @@
 
 
             gui.add(options, 'show').onChange(finish)
-            gui.add(options, 'opacity',0,1).onChange(finish)
+            gui.add(options, 'opacity', 0, 1).onChange(finish)
 
             function finish(e) {
-                if(options.show){
+                if (options.show) {
                     deckglLayer.show();
 
-                }else{
+                } else {
                     deckglLayer.hide();
                 }
                 deckglLayer.setOpacity(options.opacity);
