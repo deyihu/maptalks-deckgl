@@ -150,6 +150,7 @@ var DeckGLLayer = function (_maptalks$Layer) {
 }(maptalks.Layer);
 
 DeckGLLayer.mergeOptions(options);
+
 var DeckGLRenderer = function () {
     function DeckGLRenderer(layer) {
         _classCallCheck(this, DeckGLRenderer);
@@ -161,19 +162,21 @@ var DeckGLRenderer = function () {
         if (!this._container) {
             this._createLayerContainer();
         }
+        this.sync();
         this.layer.fire('layerload');
     };
 
     DeckGLRenderer.prototype.drawOnInteracting = function drawOnInteracting() {
-        // if (this._isVisible()) {
-
-        // }
         this.sync();
     };
 
     DeckGLRenderer.prototype.sync = function sync() {
         var props = this.getView();
-        if (this.deckgl) this.deckgl.setProps({ viewState: maptalks.Util.extend({}, props) });
+        if (this.deckgl) {
+            if (this.deckgl.setProps) {
+                this.deckgl.setProps({ viewState: maptalks.Util.extend({}, props) });
+            }
+        }
     };
 
     DeckGLRenderer.prototype.needToRedraw = function needToRedraw() {
@@ -223,12 +226,10 @@ var DeckGLRenderer = function () {
 
     DeckGLRenderer.prototype.initDeckGL = function initDeckGL() {
         var deckOption = {
-            container: this._container
-            // onViewStateChange:this.syncMap.bind(this)
-            // mapboxApiAccessToken: 'pk.eyJ1IjoiemhlbmZ1IiwiYSI6ImNpb284bzNoYzAwM3h1Ym02aHlrand6OTAifQ.sKX-XKJMmgtk_oI5oIUV_g',
-            // mapStyle: 'mapbox://styles/mapbox/dark-v9',
+            canvas: this._container.firstChild
         };
-        this.deckgl = new deck.DeckGL(maptalks.Util.extend({}, deckOption, this.getView()));
+        var options = maptalks.Util.extend({}, deckOption, { viewState: this.getView() });
+        this.deckgl = new deck.Deck(options);
         var layer = this.layer;
         if (layer && layer.props) {
             layer.setProps(layer.props);
@@ -237,6 +238,9 @@ var DeckGLRenderer = function () {
 
     DeckGLRenderer.prototype._createLayerContainer = function _createLayerContainer() {
         var container = this._container = maptalks.DomUtil.createEl('div');
+        var canvas = document.createElement('canvas');
+        container.appendChild(canvas);
+
         container.style.cssText = 'position:absolute;left:0px;top:0px;opacity:1;';
         if (this._zIndex) {
             container.style.zIndex = this._zIndex;
@@ -258,6 +262,9 @@ var DeckGLRenderer = function () {
         var size = this.getMap().getSize();
         this._container.style.width = size.width + 'px';
         this._container.style.height = size.height + 'px';
+        var canvas = this._container.firstChild;
+        canvas.width = '100%';
+        canvas.height = '100%';
         this.sync();
     };
 
@@ -277,12 +284,13 @@ var DeckGLRenderer = function () {
 
     DeckGLRenderer.prototype.getView = function getView() {
         var map = this.getMap();
+        // const res = map.getResolution();
         var center = map.getCenter(),
             zoom = map.getZoom(),
             bearing = map.getBearing(),
             pitch = map.getPitch(),
             maxZoom = map.getMaxZoom();
-        var size = map.getSize();
+        // const size = map.getSize();
         return {
             longitude: center.x,
             latitude: center.y,
@@ -290,8 +298,8 @@ var DeckGLRenderer = function () {
             maxZoom: maxZoom - 1,
             pitch: pitch,
             bearing: bearing,
-            width: size.width,
-            height: size.height
+            width: '100%',
+            height: '100%'
         };
     };
 

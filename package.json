@@ -7,7 +7,7 @@
     "type": "git",
     "url": "https://github.com/deyihu/maptalks-deckgl.git"
   },
-  "main": "dist/maptalks.deckgl.js",
+  "main": "dist/maptalks-deckgl.js",
   "scripts": {
     "preversion": "npm test",
     "version": "gulp minify && git add -A dist",
@@ -46,7 +46,6 @@
     "maptalks": "^0.25.1"
   },
   "dependencies": {
-    "@deck.gl/experimental-layers": "^6.2.0",
     "deck.gl": "^6.2.0"
   }
 }
