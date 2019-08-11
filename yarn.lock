@@ -21,41 +21,12 @@
     seer "^0.2.4"
     viewport-mercator-project "^6.0.0"
 
-"@deck.gl/core@^6.2.2":
-  version "6.2.2"
-  resolved "https://registry.yarnpkg.com/@deck.gl/core/-/core-6.2.2.tgz#4c942131cdb046c5feb55832b214b879c2549e51"
-  integrity sha512-Fw6XICkks4lrQmhLuKK4nBGCokIRI5et5CcMc1DIH7m7NxZt38mzQANb/mvBPWrTu5cYK78ZKwUEQeBUosjMlw==
-  dependencies:
-    luma.gl "^6.2.0"
-    math.gl "^2.1.0"
-    mjolnir.js "^1.0.0"
-    probe.gl "^2.0.0"
-    seer "^0.2.4"
-    viewport-mercator-project "^6.0.0"
-
-"@deck.gl/experimental-layers@^6.2.0":
-  version "6.2.2"
-  resolved "https://registry.yarnpkg.com/@deck.gl/experimental-layers/-/experimental-layers-6.2.2.tgz#9c667bf740dae5f78db74a4250b5415e5f7a1b0d"
-  integrity sha512-H5I+W80XfNzF7lofXm1xT1tHUOa6f4iy90bHd8TGp87rakPu0iMUByIzHrJwMkGHmJUl8nxzLDoUkCgfOGTjhA==
-  dependencies:
-    "@deck.gl/core" "^6.2.2"
-    "@deck.gl/layers" "^6.2.2"
-
 "@deck.gl/layers@^6.2.0":
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/@deck.gl/layers/-/layers-6.2.0.tgz#f59c93f2140e3f9a36e5c14d66f21fdc11093ef5"
   integrity sha512-JbrjdNxZt5giTNo6TyWfFlWYtUH+d1qr+7GlKW6GPGbZPS+Pv4FSWxnQN4nMnd+orT80P5WpheZaD5ncoiJV1w==
   dependencies:
     "@deck.gl/core" "^6.2.0"
-    d3-hexbin "^0.2.1"
-    earcut "^2.0.6"
-
-"@deck.gl/layers@^6.2.2":
-  version "6.2.2"
-  resolved "https://registry.yarnpkg.com/@deck.gl/layers/-/layers-6.2.2.tgz#2e332ad909257d4a636869ec908dea6acd1dd981"
-  integrity sha512-USvwpWMnWB5ws6NhBRgPz+rk2gJgZQTuXtyDyQJWlfz+ugTjQNpFoZYJ2atmD6IJ65aFxLmBn2O514lk6YcVbA==
-  dependencies:
-    "@deck.gl/core" "^6.2.2"
     d3-hexbin "^0.2.1"
     earcut "^2.0.6"
 

@@ -3,12 +3,12 @@ import * as deck from 'deck.gl';
 
 const options = {
     'container': 'front',
-    'renderer': 'dom'
+    'renderer': 'dom',
+    'zoomOffset': 1
 };
 
 
 export class DeckGLLayer extends maptalks.Layer {
-
     // getDeckGL() {
     //     const render = this._getRenderer();
     //     if (render) {
@@ -255,13 +255,14 @@ export class DeckGLRenderer {
 
     getView() {
         const map = this.getMap();
+        const zoomOffset = this.layer.options.zoomOffset;
         // const res = map.getResolution();
         const center = map.getCenter(), zoom = map.getZoom(), bearing = map.getBearing(), pitch = map.getPitch(), maxZoom = map.getMaxZoom();
         // const size = map.getSize();
         return {
             longitude: center.x,
             latitude: center.y,
-            zoom: zoom - 1,
+            zoom: zoom - zoomOffset,
             maxZoom: maxZoom - 1,
             pitch: pitch,
             bearing: bearing,

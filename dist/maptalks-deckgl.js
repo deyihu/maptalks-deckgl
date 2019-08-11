@@ -22,7 +22,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var options = {
     'container': 'front',
-    'renderer': 'dom'
+    'renderer': 'dom',
+    'zoomOffset': 1
 };
 
 var DeckGLLayer = function (_maptalks$Layer) {
@@ -284,6 +285,7 @@ var DeckGLRenderer = function () {
 
     DeckGLRenderer.prototype.getView = function getView() {
         var map = this.getMap();
+        var zoomOffset = this.layer.options.zoomOffset;
         // const res = map.getResolution();
         var center = map.getCenter(),
             zoom = map.getZoom(),
@@ -294,7 +296,7 @@ var DeckGLRenderer = function () {
         return {
             longitude: center.x,
             latitude: center.y,
-            zoom: zoom - 1,
+            zoom: zoom - zoomOffset,
             maxZoom: maxZoom - 1,
             pitch: pitch,
             bearing: bearing,
