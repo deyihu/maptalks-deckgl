@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>maptalks-deckgl test</title>
+<style type="text/css">
+    html,
+    body {
+        margin: 0px;
+        height: 100%;
+        width: 100%
+    }
+
+    .container {
+        width: 100%;
+        height: 100%
+    }
+
+    #tooltip:empty {
+        display: none;
+    }
+
+    #tooltip {
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 11px;
+        position: absolute;
+        padding: 4px;
+        margin: 8px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        max-width: 300px;
+        font-size: 10px;
+        z-index: 9;
+        pointer-events: none;
+    }
+
+</style>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/gcoord@0.2.3/dist/gcoord.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maptalks@0.41.1/dist/maptalks.css">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/maptalks@0.41.1/dist/maptalks.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/deck.gl@7.1.11/dist.min.js"></script>
+<script type="text/javascript" src="../dist/maptalks-deckgl.js"></script>
+
+
+
+<body>
+
+    <div id="map" class="container"></div>
+    <div id="tooltip"></div>
+    <script>
+    
+
+        var map = new maptalks.Map('map', {
+            center: [120.5032982591415, 31.4251823229134],
+            zoom: 13,
+            minZoom: 1,
+            maxZoom: 19,
+            spatialReference: {
+                projection: 'EPSG:3857'
+            },
+            baseLayer: new maptalks.TileLayer('base', {
+                'urlTemplate': 'http://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',
+                'subdomains': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                'attribution': '&copy; <a target="_blank" href="https://ditu.amap.com/">AMAP Map</a>'
+            })
+        });
+
+        const deckglLayer = new maptalks.DeckGLLayer('kkkk', {});
+        map.addLayer(deckglLayer);
+
+
+
+      
+        addPathLayer();
+
+        function addPathLayer() {
+            const LIGHT_SETTINGS = {
+                lightsPosition: [-74.05, 40.7, 8000, -73.5, 41, 5000],
+                ambientRatio: 0.05,
+                diffuseRatio: 0.6,
+                specularRatio: 0.8,
+                lightsStrength: [2.0, 0.0, 0.0, 0.0],
+                numberOfLights: 2
+            };
+            fetch('./data/roads.geojson').then(res => {
+                return res.json()
+            }).then(result => {
+                console.log(result);
+                let dd = result.features;
+                dd.forEach(element => {
+                    element.vendor = Math.random();
+                    element.geometry.coordinates=gcoord.transform(element.geometry,gcoord.WGS84, gcoord.AMap).coordinates
+                });
+                let lineLayer = {
+                    layerType: 'PathLayer',
+                    id: 'line-layer',
+                    data: dd,
+                    pickable: true,
+                    widthScale: 1,
+                    widthMinPixels: 5,
+                    getPath: d => d.geometry.coordinates,
+                    getWidth: d => 3,
+                    opacity: 1,
+                    lightSettings: LIGHT_SETTINGS,
+                    getColor: d => (d.vendor > 0.5 ? [0, 0, 0] : [255, 0, 0])
+                }
+                deckglLayer.setProps({
+                    layers: [lineLayer]
+                });
+            });
+
+        }
+
+    </script>
+</body>
+
+</html>
