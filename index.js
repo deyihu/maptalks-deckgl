@@ -3,12 +3,12 @@ import * as deck from 'deck.gl';
 
 const options = {
     'container': 'front',
-    'renderer': 'dom'
+    'renderer': 'dom',
+    'zoomOffset': 0
 };
 
 
 export class DeckGLLayer extends maptalks.Layer {
-
     // getDeckGL() {
     //     const render = this._getRenderer();
     //     if (render) {
@@ -26,17 +26,17 @@ export class DeckGLLayer extends maptalks.Layer {
         return this;
     }
 
-    onAdd() {
-        let self = this;
-        function animimation() {
-            const render = self._getRenderer();
-            if (render) {
-                render.sync();
-            }
-            self.syncAnimation = requestAnimationFrame(animimation);
-        }
-        animimation();
-    }
+    // onAdd() {
+    //     let self = this;
+    //     function animimation() {
+    //         const render = self._getRenderer();
+    //         if (render) {
+    //             // render.sync();
+    //         }
+    //         self.syncAnimation = requestAnimationFrame(animimation);
+    //     }
+    //     animimation();
+    // }
 
     onRemove() {
         if (this.syncAnimation) cancelAnimationFrame(this.syncAnimation);
@@ -255,13 +255,14 @@ export class DeckGLRenderer {
 
     getView() {
         const map = this.getMap();
+        const zoomOffset = this.layer.options.zoomOffset;
         // const res = map.getResolution();
         const center = map.getCenter(), zoom = map.getZoom(), bearing = map.getBearing(), pitch = map.getPitch(), maxZoom = map.getMaxZoom();
         // const size = map.getSize();
         return {
             longitude: center.x,
             latitude: center.y,
-            zoom: getMapBoxZoom(map.getResolution()),
+            zoom: getMapBoxZoom(map.getResolution()) - zoomOffset,
             maxZoom: maxZoom - 1,
             pitch: pitch,
             bearing: bearing,

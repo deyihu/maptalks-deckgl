@@ -22,7 +22,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var options = {
     'container': 'front',
-    'renderer': 'dom'
+    'renderer': 'dom',
+    'zoomOffset': 0
 };
 
 var DeckGLLayer = function (_maptalks$Layer) {
@@ -51,17 +52,17 @@ var DeckGLLayer = function (_maptalks$Layer) {
         return this;
     };
 
-    DeckGLLayer.prototype.onAdd = function onAdd() {
-        var self = this;
-        function animimation() {
-            var render = self._getRenderer();
-            if (render) {
-                render.sync();
-            }
-            self.syncAnimation = requestAnimationFrame(animimation);
-        }
-        animimation();
-    };
+    // onAdd() {
+    //     let self = this;
+    //     function animimation() {
+    //         const render = self._getRenderer();
+    //         if (render) {
+    //             // render.sync();
+    //         }
+    //         self.syncAnimation = requestAnimationFrame(animimation);
+    //     }
+    //     animimation();
+    // }
 
     DeckGLLayer.prototype.onRemove = function onRemove() {
         if (this.syncAnimation) cancelAnimationFrame(this.syncAnimation);
@@ -284,6 +285,7 @@ var DeckGLRenderer = function () {
 
     DeckGLRenderer.prototype.getView = function getView() {
         var map = this.getMap();
+        var zoomOffset = this.layer.options.zoomOffset;
         // const res = map.getResolution();
         var center = map.getCenter(),
             zoom = map.getZoom(),
@@ -294,7 +296,7 @@ var DeckGLRenderer = function () {
         return {
             longitude: center.x,
             latitude: center.y,
-            zoom: zoom - 1,
+            zoom: getMapBoxZoom(map.getResolution()) - zoomOffset,
             maxZoom: maxZoom - 1,
             pitch: pitch,
             bearing: bearing,
@@ -305,6 +307,11 @@ var DeckGLRenderer = function () {
 
     return DeckGLRenderer;
 }();
+
+var MAX_RES = 2 * 6378137 * Math.PI / (256 * Math.pow(2, 20));
+function getMapBoxZoom(res) {
+    return 19 - Math.log(res / MAX_RES) / Math.LN2;
+}
 DeckGLLayer.registerRenderer('dom', DeckGLRenderer);
 
 exports.DeckGLLayer = DeckGLLayer;
