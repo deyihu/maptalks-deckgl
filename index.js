@@ -261,7 +261,7 @@ export class DeckGLRenderer {
         return {
             longitude: center.x,
             latitude: center.y,
-            zoom: zoom - 1,
+            zoom: getMapBoxZoom(map.getResolution()),
             maxZoom: maxZoom - 1,
             pitch: pitch,
             bearing: bearing,
@@ -269,5 +269,10 @@ export class DeckGLRenderer {
             height: '100%'
         };
     }
+}
+
+const MAX_RES = 2 * 6378137 * Math.PI / (256 * Math.pow(2, 20));
+function getMapBoxZoom(res) {
+    return 19 - Math.log(res / MAX_RES) / Math.LN2;
 }
 DeckGLLayer.registerRenderer('dom', DeckGLRenderer);
