@@ -240,6 +240,7 @@ var DeckGLRenderer = function () {
     DeckGLRenderer.prototype._createLayerContainer = function _createLayerContainer() {
         var container = this._container = maptalks.DomUtil.createEl('div');
         var canvas = document.createElement('canvas');
+        canvas.getContext('webgl2', { preserveDrawingBuffer: true });
         container.appendChild(canvas);
 
         container.style.cssText = 'position:absolute;left:0px;top:0px;opacity:1;';
