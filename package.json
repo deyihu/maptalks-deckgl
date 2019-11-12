@@ -1,5 +1,5 @@
 {
-  "name": "maptalks-deckgl",
+  "name": "maptalks-deckgllayer",
   "version": "0.0.1",
   "description": "A maptalks Layer to render with deck.gl.",
   "license": "MIT",
@@ -7,7 +7,7 @@
     "type": "git",
     "url": "https://github.com/deyihu/maptalks-deckgl.git"
   },
-  "main": "dist/maptalks-deckgl.js",
+  "main": "dist/maptalks-deckgllayer.js",
   "scripts": {
     "preversion": "npm test",
     "version": "gulp minify && git add -A dist",

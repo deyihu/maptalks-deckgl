@@ -1,5 +1,5 @@
 /*!
- * maptalks-deckgl v0.0.1
+ * maptalks-deckgllayer v0.0.1
  * LICENSE : MIT
  * (c) 2016-2019 maptalks.org
  */
@@ -320,6 +320,6 @@ exports.DeckGLRenderer = DeckGLRenderer;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-typeof console !== 'undefined' && console.log('maptalks-deckgl v0.0.1, requires maptalks@^0.25.1.');
+typeof console !== 'undefined' && console.log('maptalks-deckgllayer v0.0.1, requires maptalks@^0.25.1.');
 
 })));
